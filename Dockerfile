@@ -5,7 +5,6 @@ RUN pip install -U pip && pip install -r requirements/common.txt
 
 COPY ./apis /app/apis
 COPY ./bin /app/bin
-COPY ./__init__.py /app
 COPY ./app.py /app
 COPY ./wsgi.py /app
 WORKDIR /app

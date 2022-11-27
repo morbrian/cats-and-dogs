@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask import request, json
 
 api = Namespace('dogs', description='Dogs related operations')
 
@@ -8,11 +9,11 @@ dog = api.model('Dog', {
     'color': fields.String(required=True, description='The dog color'),
 })
 
-DOGS = [
-    {'id': 'gracie', 'name': 'Gracie', 'color': 'black-tan'},
-    {'id': 'marge', 'name': 'Marge', 'color': 'blonde'},
-    {'id': 'piper', 'name': 'Piper', 'color': 'black'},
-]
+DOGS = {
+    'gracie': {'id': 'gracie', 'name': 'Gracie', 'color': 'black-tan'},
+    'marge': {'id': 'marge', 'name': 'Marge', 'color': 'blonde'},
+    'piper': {'id': 'piper', 'name': 'Piper', 'color': 'black'},
+}
 
 @api.route('/')
 class DogList(Resource):
@@ -20,7 +21,7 @@ class DogList(Resource):
     @api.marshal_list_with(dog)
     def get(self):
         '''List all dogs'''
-        return DOGS
+        return list(DOGS.values())
 
 @api.route('/<id>')
 @api.param('id', 'The dog identifier')
@@ -30,7 +31,29 @@ class Dog(Resource):
     @api.marshal_with(dog)
     def get(self, id):
         '''Fetch a dog given its identifier'''
-        for dog in DOGS:
-            if dog['id'] == id:
-                return dog
+        dog = DOGS[id]
+        if dog is not None:
+            return dog
+        api.abort(404)
+
+    @api.doc('put_dog')
+    @api.doc(body=dog)
+    @api.marshal_with(dog)
+    def put(self, id):
+        '''Put dog data for given identifier'''
+        data = json.loads(request.data)
+        if (id is not None):
+            data['id'] = id
+            DOGS[id] = data
+            return data
+        api.abort(400, 'id not specified')
+
+
+    @api.doc('delete_dog')
+    def delete(self, id):
+        '''Delete dog data for given identifier'''
+        dog = DOGS.get(id)
+        if dog is not None:
+            DOGS.pop(id)
+            return dog
         api.abort(404)
