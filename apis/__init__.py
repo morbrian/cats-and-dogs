@@ -4,9 +4,9 @@ from .cats import api as cats
 from .dogs import api as dogs
 
 api = Api(
-    title='My Title',
+    title='Sample Data Services',
     version='1.0',
-    description='A description',
+    description='Simple sandbox services to help try out development ideas',
     # All API metadatas
 )
 
